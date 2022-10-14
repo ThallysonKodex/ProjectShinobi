@@ -4,8 +4,7 @@ from map.konoha import *
 
 class SceneManager:
     def __init__(self, group):
-        self.group = group
-        self.konoha = Processor(self.group)
+        self.konoha = Processor(group)
 
 
     def process(self):

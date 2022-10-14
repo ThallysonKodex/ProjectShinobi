@@ -4,13 +4,24 @@ import map.konoha
 import settings.tile_size
 import settings.window
 
+from GUI import *
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, size, group):
         super().__init__(group)
+
+        self.clothing_gui_timer_constant = 200
+
         self.group = group
         self.zed = 0
         self.size = size
+
+        self.clothing_gui_open = False
+        self.buttons = [[(500, 200, 50, 50), False]]
+        self.clothing_gui = GUI((650, 370), "clothing", self.buttons)
+        self.clothing_gui_timer = self.clothing_gui_timer_constant
+
 
         self.frame = 0
         self.sprite_direction = 'down'
@@ -25,7 +36,7 @@ class Player(pygame.sprite.Sprite):
 
         self.position = pygame.math.Vector2(pos)
         self.direction = pygame.math.Vector2()
-        self.speed = 120
+        self.speed = 300
 
         self.last_position_x = 'right'
         self.last_position_y = 'down'
@@ -40,7 +51,7 @@ class Player(pygame.sprite.Sprite):
 
     def animation(self, dt):
         if self.direction.magnitude() != 0:
-            self.frame += 1 * (self.speed / 10) * dt
+            self.frame += 1 * (self.speed / 15) * dt
             if self.frame >= 7:
                 self.frame = 0
             self.image = pygame.transform.scale(self.frames_normal[int(self.frame)], (self.size, self.size* 1.2))
@@ -112,8 +123,27 @@ class Player(pygame.sprite.Sprite):
                 self.direction = pygame.math.Vector2((0, 1))
             else:
                 self.direction = pygame.math.Vector2((0, 0))
+    def interactions(self, screen):
+        ks = pygame.key.get_pressed()
 
-    def update(self, dt):
+        if ks[pygame.K_e] and self.clothing_gui_open == False and self.clothing_gui_timer == self.clothing_gui_timer_constant and self.clothing_gui.state == 'closed':
+            self.clothing_gui.state = 'open'
+            self.clothing_gui_open = True
+            self.clothing_gui_timer = 20
+        elif ks[pygame.K_e] and self.clothing_gui_open == True and self.clothing_gui_timer == self.clothing_gui_timer_constant and self.clothing_gui.state == 'open':
+            self.clothing_gui.state = 'closed'
+            self.clothing_gui_open = False
+            self.clothing_gui_timer = 20
+
+        if self.clothing_gui_open == True:
+            screen.blit(self.clothing_gui.image, self.clothing_gui.rect)
+    def timers_recounts(self):
+        if self.clothing_gui_timer != self.clothing_gui_timer_constant:
+            self.clothing_gui_timer += 1
+        else:
+            self.clothing_gui_timer = self.clothing_gui_timer_constant
+
+    def update(self, screen, dt):
         self.movement(dt)
 
         self.frames(self.sprite_direction)
@@ -121,6 +151,11 @@ class Player(pygame.sprite.Sprite):
 
         self.multiple_checker()
         self.input()
+        self.interactions(screen)
+
+
+        # Timer recounts:
+        self.timers_recounts()
 
 
 
