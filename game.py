@@ -12,8 +12,8 @@ class Game:
     def __init__(self):
         self.all_objects = AllObjects()
 
-        self.scene_manager = SceneManager(self.all_objects)
-        self.scene_manager.process()
+        # self.scene_manager = SceneManager(self.all_objects)
+        # self.scene_manager.process()
 
         self.entity_manager = EntityManager(self.all_objects)
 

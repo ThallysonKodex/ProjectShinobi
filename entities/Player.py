@@ -2,25 +2,18 @@ import pygame
 
 import map.konoha
 import settings.tile_size
-import settings.window
+from settings.window import *
 
-from GUI import *
+
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, size, group):
         super().__init__(group)
 
-        self.clothing_gui_timer_constant = 200
-
         self.group = group
         self.zed = 0
         self.size = size
-
-        self.clothing_gui_open = False
-        self.buttons = [[(500, 200, 50, 50), False]]
-        self.clothing_gui = GUI((650, 370), "clothing", self.buttons)
-        self.clothing_gui_timer = self.clothing_gui_timer_constant
 
 
         self.frame = 0
@@ -30,13 +23,14 @@ class Player(pygame.sprite.Sprite):
         self.image = self.frames_normal[self.frame]
         self.light = self.frames_light[self.frame]
         self.shadow = self.frames_shadow[self.frame]
+
         self.custom = []
 
         self.rect = self.image.get_rect(center = pos)
 
         self.position = pygame.math.Vector2(pos)
         self.direction = pygame.math.Vector2()
-        self.speed = 300
+        self.speed = 250
 
         self.last_position_x = 'right'
         self.last_position_y = 'down'
@@ -51,7 +45,7 @@ class Player(pygame.sprite.Sprite):
 
     def animation(self, dt):
         if self.direction.magnitude() != 0:
-            self.frame += 1 * (self.speed / 15) * dt
+            self.frame += 1 * (self.speed / 20) * dt
             if self.frame >= 7:
                 self.frame = 0
             self.image = pygame.transform.scale(self.frames_normal[int(self.frame)], (self.size, self.size* 1.2))
@@ -66,8 +60,8 @@ class Player(pygame.sprite.Sprite):
     def movement(self, dt):
         if self.direction.magnitude() != 0:
             self.position += self.direction * self.speed * dt
-        self.rect.x = round(self.position.x)
-        self.rect.y = round(self.position.y)
+        self.rect.x = int(self.position.x)
+        self.rect.y = int(self.position.y)
 
     def input(self):
         kb = pygame.key.get_pressed()
@@ -93,6 +87,8 @@ class Player(pygame.sprite.Sprite):
                 self.last_position_x = 'left'
                 self.direction.x = -1
 
+
+
     def multiple_checker(self):
         ls_y = []
         ls_x = []
@@ -101,7 +97,6 @@ class Player(pygame.sprite.Sprite):
         for i in map.konoha.world:
             for x in range(0, int(len(i))):
                 ls_x.append(int(x * settings.tile_size.tile_size))
-
 
         if self.direction.x == 1 and self.last_position_x == "right":
             if int(self.position.x) not in ls_x:
@@ -123,27 +118,11 @@ class Player(pygame.sprite.Sprite):
                 self.direction = pygame.math.Vector2((0, 1))
             else:
                 self.direction = pygame.math.Vector2((0, 0))
-    def interactions(self, screen):
-        ks = pygame.key.get_pressed()
 
-        if ks[pygame.K_e] and self.clothing_gui_open == False and self.clothing_gui_timer == self.clothing_gui_timer_constant and self.clothing_gui.state == 'closed':
-            self.clothing_gui.state = 'open'
-            self.clothing_gui_open = True
-            self.clothing_gui_timer = 20
-        elif ks[pygame.K_e] and self.clothing_gui_open == True and self.clothing_gui_timer == self.clothing_gui_timer_constant and self.clothing_gui.state == 'open':
-            self.clothing_gui.state = 'closed'
-            self.clothing_gui_open = False
-            self.clothing_gui_timer = 20
-
-        if self.clothing_gui_open == True:
-            screen.blit(self.clothing_gui.image, self.clothing_gui.rect)
-    def timers_recounts(self):
-        if self.clothing_gui_timer != self.clothing_gui_timer_constant:
-            self.clothing_gui_timer += 1
-        else:
-            self.clothing_gui_timer = self.clothing_gui_timer_constant
 
     def update(self, screen, dt):
+
+
         self.movement(dt)
 
         self.frames(self.sprite_direction)
@@ -151,11 +130,8 @@ class Player(pygame.sprite.Sprite):
 
         self.multiple_checker()
         self.input()
-        self.interactions(screen)
 
 
-        # Timer recounts:
-        self.timers_recounts()
 
 
 
